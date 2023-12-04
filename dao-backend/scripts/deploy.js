@@ -1,29 +1,20 @@
 // scripts/deploy.js
+const {ethers, upgrades} = require('hardhat');
+
 async function main() {
-	const [deployer] = await ethers.getSigners();
+	const GovernanceToken = await ethers.getContractFactory('GovernanceToken'); // Assuming you have a GovernanceToken contract
+	const governanceToken = await GovernanceToken.deploy();
 
-	// Deploy Governance Token
-	const GovernanceToken = await ethers.getContractFactory('GovernanceToken');
-	const govToken = await GovernanceToken.deploy();
-	await govToken.deployed();
-	console.log('Governance Token deployed to:', govToken.address);
+	await governanceToken.deployed();
 
-	// Deploy DAO contract with governance token address
+	console.log('Governance Token deployed to:', governanceToken.address);
+
 	const DAO = await ethers.getContractFactory('DAO');
-	const dao = await DAO.deploy(
-		'0xYourVrfCoordinatorAddress',
-		'0xYourLinkTokenAddress',
-		'0xYourKeyHash',
-		100, // Replace with your desired fee
-		govToken.address // Pass governance token address as a parameter
-	);
+	const dao = await upgrades.deployProxy(DAO, [governanceToken.address, 10]); // Adjust 10 to your desired minVotesToExecute
+
 	await dao.deployed();
+
 	console.log('DAO deployed to:', dao.address);
 }
 
-main()
-	.then(() => process.exit(0))
-	.catch((error) => {
-		console.error(error);
-		process.exit(1);
-	});
+main();
