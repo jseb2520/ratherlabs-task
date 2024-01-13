@@ -1,23 +1,14 @@
-version: "3.9"
+version: "3"
 services:
   backend:
-    build:
-      context: ./dao-backend
-      dockerfile: dockerfile
+    build: ./dao-backend
     ports:
-      - "4000:4000"
+      - "5000:5000"
     environment:
-      DB_USER: doublevp
-      DB_PASSWORD: adm123
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: gh_users
-
+      - NODE_ENV=production
+    depends_on:
+      - frontend
   frontend:
-    build:
-      context: ./dao-frontend
-      dockerfile: dockerfile
+    build: ./dao-frontend
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
